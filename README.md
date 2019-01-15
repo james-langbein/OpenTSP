@@ -18,8 +18,6 @@ Then, at the top of your module:
 from opentsp.objects import Generator
 ```
 
-
-
 ### Creating a TSP Instance
 
 To create a random TSP instance with eight nodes, using your console:
@@ -170,6 +168,7 @@ last_elem = instance.nodes[len(instance.nodes)]
 
 To check out the full brute force algorithm, look at the `Solvers` class in the Github repo.
 
+---
 ### Overview of Classes
 
 #### Node
@@ -210,7 +209,10 @@ The only required argument for `new_instance` is the number of nodes. In this ca
 
 Contains methods for solving instances.
 
+Currently I've implemented *brute-force* and *convex hull*.  
+(I'd like to thank [arthur-e](https://gist.github.com/arthur-e/5cf52962341310f438e96c1f3c3398b8) for their Python3 convex hull script which I modified slightly to suit this library.)
 
+---
 ## Update history
 
 1.1.3
