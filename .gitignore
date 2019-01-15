@@ -1,0 +1,8 @@
+*.pyc
+.project
+.DS_Store
+*.bat
+builds
+other
+venv
+.idea
