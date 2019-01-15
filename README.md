@@ -1,6 +1,4 @@
 # OpenTSP
-
----
 OpenTSP is designed to make it as easy as possible to generate and test TSP instances against hypotheses, as well as solving them with brute force for comparison.  
 This is my first major project, having learnt Python over the last six months, so if you have style suggestions I'd love to hear them.
 
@@ -10,8 +8,6 @@ If you want to contribute implementations of algorithms for solving then I'd lov
 This is why I'm making *opentsp* an open-source library, in the hopes that others who find it useful will add to it. If you have suggestions or code, please create a pull request on the Github page, which I'll put the link up for soon.
 
 ## Getting started
-
----
 To install *opentsp* in your local environment with pip:
 ```
 pip install opentsp
