@@ -1,7 +1,7 @@
-# Open TSP
+# OpenTSP
 
 ---
-This library is designed to make it as easy as possible to generate and test TSP instances against hypotheses, as well as solving them with brute force for comparison.  
+OpenTSP is designed to make it as easy as possible to generate and test TSP instances against hypotheses, as well as solving them with brute force for comparison.  
 This is my first major project, having learnt Python over the last six months, so if you have style suggestions I'd love to hear them.
 
 The goal is to make this an easy library to work with, please feel free to email me with any functionality you feel would help.
