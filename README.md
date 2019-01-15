@@ -7,7 +7,18 @@ The goal is to make this an easy library to work with, please feel free to email
 If you want to contribute implementations of algorithms for solving then I'd love to hear from you! Currently I have implemented *brute-force* and *convex-hull*. However, there is a long list of algorithms I'd love to include in the library, such as *christofides* and *branch and bound*. I don't have the knowledge to implement these myself though.  
 This is why I'm making *opentsp* an open-source library, in the hopes that others who find it useful will add to it. If you have suggestions or code, please create a pull request on the Github page, which I'll put the link up for soon.
 
-## Getting started
+## Contents
+Getting Started  
+ - Creating a TSP Instance
+ - Example Hypothesis-test Algorithm  
+
+Using Your Own Algorithms  
+Overview of Classes  
+Update History (PyPI versions)
+ 
+ 
+
+## Getting Started
 To install *opentsp* in your local environment with pip:
 ```
 pip install opentsp
@@ -150,7 +161,7 @@ As you can see, in 19 lines of code it's possible to test a hypothesis, with onl
 Also, as in the example above, you can solve the instance as part of generating it with `solve=True`. Keep in mind that is most likely going to be a brute force solution, so trying to do this with a 20 node problem will take a fairly long while unless you are running your code on a very powerful supercomputer.
 
 ---
-### Using Your Own Algorithms
+## Using Your Own Algorithms
 
 To use your own algorithm, define a function with an appropriate name, and make `instance` an argument.  
 ```
