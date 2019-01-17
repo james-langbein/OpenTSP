@@ -137,8 +137,8 @@ def hyp_test():
     start = time.time()
     
     while loop is True and loops < 1000000:
-        loopstr = f"Failed on loop: {loops}"
-        p = ot.classes.Generator.new_instance(6, solve=True)
+        fail_loop = f"Failed on loop: {loops}"
+        p = ot.objects.Generator.new_instance(6, solve=True)
         shortest_edge = p.n_shortest_edges_of_instance(1)
         edge_path = p.solution_as_edges
         
@@ -151,8 +151,8 @@ def hyp_test():
             
     end = time.time()
     total_time = end - start
-    print(loopstr)
-    print("Took {0}'s to run.".format(total_time))
+    print(fail_loop)
+    print(f"Took {total_time}'s to run.")
     print("Finished")
 ```
 This function will generate up to a million instances, testing each one to see if the shortest edge is in the solution or not using the `if` test on line 13: `if shortest_edge in edge_path:`.  
