@@ -139,11 +139,13 @@ class Edge:
 
 
 class Path(Sequence):
-    """Represents a path as being made of a series of nodes. Currently I don't enforce any particular type, though I
-    probably should. The brute_force method creates a Path of type Tuple."""
+    """Represents a path as being made of a series of nodes.
+    A Path must be given a series (list, tuple) of nodes as the 'path' arg, in the correct order.
+    A path is inherently immutable from the perspective of this library.
+    The 'nodes' property can be used for mutability purposes."""
+
     def __init__(self, path=None):
-        """Create a new path."""
-        self.path = path
+        self.path = tuple(path)
 
     def __getitem__(self, item):
         return self.path[item]
@@ -193,6 +195,23 @@ class Path(Sequence):
         return True
 
     @property
+    def nodes(self):
+        """Use this property if you want to have a mutable list of the nodes."""
+        return list(self.path)
+
+    @property
+    def edges(self):
+        """Returns the path as a series of edges, preserving the order/direction of the path."""
+        edge_path = []
+        for index, node in enumerate(self.path):
+            if index == len(self.path) - 1:
+                break
+            next_node = index + 1
+            edge = Edge(node, self.path[next_node])
+            edge_path.append(edge)
+        return edge_path
+
+    @property
     def length(self):
         """Returns the total length of the path."""
         total_length = 0
@@ -212,23 +231,22 @@ class Path(Sequence):
         """Returns the average edge length of the path."""
         return numpy.mean([n.length_ for n in self.edges])
 
-    @property
-    def shortest_edge(self):
-        """Returns the shortest edge in the path. Multiple edges will be returned if they have the same length."""
-        lis = sorted([n for n in self.edges], reverse=False)
-        if lis[0].length_ != lis[1].length_:
-            return lis[0]
-        elif lis[0].length_ == lis[1].length_:
-            return [n for n in lis if n.length_ == lis[0].length_]
+    def n_sorted_edges(self, n, reverse=False):
+        """Returns n sorted edges in order, the default being shortest first.
+        Change the 'reverse' argument for longest first.
+        Multiple edges will be returned if they have the same length."""
+        lis = sorted([n for n in self.edges], reverse=reverse)
+        if n == 1:
+            if lis[0].length_ != lis[1].length_:
+                return lis[0]
+            else:
+                return lis[0].length_, "There is more than one shortest edge."
 
-    @property
-    def longest_edge(self):
-        """Returns the longest edge in the path. Multiple edges will be returned if they have the same length."""
-        lis = sorted([n for n in self.edges], reverse=True)
-        if lis[0].length_ != lis[1].length_:
-            return lis[0]
-        elif lis[0].length_ == lis[1].length_:
-            return [n for n in lis if n.length_ == lis[0].length_]
+        elif 1 < n < len(self.nodes):
+            return lis[0:n]
+
+        elif n >= len(self.nodes):
+            return lis[0:len(self.nodes)], "There are less nodes in total than the given number."
 
     @property
     def edge_lengths_as_list(self):
@@ -243,44 +261,32 @@ class Path(Sequence):
         y_mean = numpy.mean(list(set([node.y for node in self.path])))
         return Node(x_mean, y_mean)
 
-    @property
-    def edges(self):
-        """Returns the path as a series of edges, preserving the order/direction of the path."""
-        edge_path = []
-        for index, node in enumerate(self.path):
-            if index == len(self.path) - 1:
-                break
-            next_node = index + 1
-            edge = Edge(node, self.path[next_node])
-            edge_path.append(edge)
-        return edge_path
-
-    def view(self, show_avg=False, no_path=False, plot_se=False, plot_le=False, title='', node_color='red',
-             edge_color='red', edge_zorder=2, node_zorder=3,  edge_width=1):
-        """Use pyplot to view the path.
-        Set show_avg=True to plot the average node. Set no_path=True to plot the nodes only, with no path.
-        Set plot_se=True and plot_le=True to plot the shortest and longest edges, respectively.
-        When using this method in a loop, be sure to include a call to 'plt.figure()' in each loop, otherwise all loop
-        results will be plotted on the same graph.
-        """
-        plt.title = title
-        plt.xlim(xmin=0, xmax=100)
-        plt.ylim(ymin=0, ymax=100)
-        if show_avg:
-            plt.scatter(self.average_node.x, self.average_node.y)
-        if no_path is True:
-            plt.scatter([i.x for i in self.path], [i.y for i in self.path])
-        else:
-            plt.plot([i.x for i in self.path], [i.y for i in self.path], zorder=edge_zorder, linewidth=edge_width,
-                     color=edge_color)
-            plt.scatter([i.x for i in self.path], [i.y for i in self.path], color=node_color, zorder=node_zorder)
-        if plot_se is True:
-            plt.plot([i.x for i in self.shortest_edge.indiv_nodes_as_list],
-                     [i.y for i in self.shortest_edge.indiv_nodes_as_list])
-        if plot_le is True:
-            plt.plot([i.x for i in self.longest_edge.indiv_nodes_as_list],
-                     [i.y for i in self.longest_edge.indiv_nodes_as_list])
-        plt.show()
+    # def view(self, show_avg=False, no_path=False, plot_se=False, plot_le=False, title='', node_color='red',
+    #          edge_color='red', edge_zorder=2, node_zorder=3,  edge_width=1):
+    #     """Uses matplotlib.pyplot to view the path.
+    #     Set show_avg=True to plot the average node. Set no_path=True to plot the nodes only, with no path.
+    #     Set plot_se=True and plot_le=True to plot the shortest and longest edges, respectively.
+    #     When using this method in a loop, be sure to include a call to 'plt.figure()' in each loop, otherwise all loop
+    #     results will be plotted on the same graph.
+    #     """
+    #     plt.title = title
+    #     plt.xlim(xmin=0, xmax=100)
+    #     plt.ylim(ymin=0, ymax=100)
+    #     if show_avg:
+    #         plt.scatter(self.average_node.x, self.average_node.y)
+    #     if no_path is True:
+    #         plt.scatter([i.x for i in self.path], [i.y for i in self.path])
+    #     else:
+    #         plt.plot([i.x for i in self.path], [i.y for i in self.path], zorder=edge_zorder, linewidth=edge_width,
+    #                  color=edge_color)
+    #         plt.scatter([i.x for i in self.path], [i.y for i in self.path], color=node_color, zorder=node_zorder)
+    #     if plot_se is True:
+    #         plt.plot([i.x for i in self.shortest_edge.indiv_nodes_as_list],
+    #                  [i.y for i in self.shortest_edge.indiv_nodes_as_list])
+    #     if plot_le is True:
+    #         plt.plot([i.x for i in self.longest_edge.indiv_nodes_as_list],
+    #                  [i.y for i in self.longest_edge.indiv_nodes_as_list])
+    #     plt.show()
 
 
 class Instance:
@@ -288,7 +294,7 @@ class Instance:
     Count = 0
 
     def __init__(self, seed=None, nodes=None, edges=None, dmatrix=None, solution_path=None, solve_time=None,
-                 results=None):
+                 results=None, relative_edges=False):
         """Create a new problem with x number of nodes.
         Leave seed blank for random seed, otherwise put an eight digit number to use for the seed."""
         self.seed = seed
@@ -298,6 +304,7 @@ class Instance:
         self.solution_path = solution_path
         self.solve_time = solve_time
         self.results = results
+        self.relative_edges = relative_edges
         Instance.Count += 1
 
     def __str__(self):
@@ -412,24 +419,9 @@ class Instance:
         return Node(x, y)
 
     @property
-    def instance_edge_sum(self):
+    def instance_edge_sum(self):  # TODO: test this for correct output
         """Returns the sum of all the edges."""
-        return sum(edge.length_ for edge in self.edges_as_list)
-
-    # I can deprecate this method after implementing Path's in instances.
-    # @property
-    # def solution_length(self):
-    #     """Calculates the sum of the edges in the solution, using the 'solution_path' attribute. This will ask to
-    #     compute the solution if it hasn't been computed yet."""
-    #     if self.solution_path is not None:
-    #         return self.solution_path.length_
-    #     elif self.solution_path is None:
-    #         x = input('The optimal path has not been computed yet, do you wish to do so?  y/n ')
-    #         if x == 'y':
-    #             self.solve()
-    #             return self.solution_path.length
-    #         else:
-    #             return
+        return sum(length for length in self.n_edge_lengths(all_lengths=True))
 
     @property
     def instance_average_edge_length(self):
@@ -437,28 +429,29 @@ class Instance:
         return numpy.mean([n.length_ for n in self.edges.values()])
 
     @property
-    def nodes_as_list(self):
-        """Returns the nodes as a list."""
-        return list(self.nodes.values())
-
-    @property
-    def nodes_as_plain_data(self):
+    def nodes_as_plain_data(self):  # TODO: test this for correct output
         """Returns a list of the nodes, but as plain numbers in tuples, not Node objects."""
         nodes = []
-        for i in self.nodes_as_list:
+        for i in list(self.nodes.values()):
             node = (i.x, i.y)
             nodes.append(node)
         return nodes
 
-    @property
-    def edges_as_list(self):
-        """Returns the edges as a list."""
-        return list(self.edges.values())
+    def n_edge_lengths(self, n=None, reverse=False, all_lengths=False):  # TODO: test this for correct output
+        """Returns n edge lengths as a list.
+        Default is shortest lengths first. Set reverse=True for longest first.
+        If all=True, all the edge will be returned, ignoring n."""
+        if self.relative_edges:
+            step = 2
+        else:
+            step = 1
 
-    @property
-    def edge_lengths_as_list(self):
-        """Returns the edge lengths as a list."""
-        return sorted([n.length_ for n in self.edges.values()], reverse=False)
+        if all_lengths:
+            return sorted([n.length_ for n in self.edges.values()], reverse=reverse)
+        else:
+            return sorted([n.length_ for n in self.edges.values()], reverse=reverse) \
+                       [0:len(self.edges.values()):step][0:n]
+
 
     # @property
     # def skew_value(self):
@@ -471,12 +464,6 @@ class Instance:
         """Returns a dictionary of the node densities."""
         return {key: node.density for key, node in self.nodes.items()}
 
-    @property
-    def density_sum(self):
-        """Returns the sum of node densities. This always = 2. This is because the calculations are relative to node, so
-        each edge is measured twice."""
-        return 2
-
     def edges_from_node(self, node, good_only=False):
         """Pass in a digit specifying the node to return the connected edges for.
         Will only work if the edges are relative.
@@ -487,50 +474,25 @@ class Instance:
         else:
             return {k: v for (k, v) in self.edges.items() if v.node_one == n}
 
-    def n_closest_nodes_to_avg_node(self, n):
+    def n_nodes_by_dist_to_avg(self, n, reverse=False):  # TODO: test this for correct output
         """Returns a list of n nodes that are closest to the average node."""
         if n > len(self.nodes):
             print('N is more than the number of nodes, so all nodes will be returned in ascending order of distance.')
-        return sorted(self.nodes.values(), key=lambda x: x.dist_from_other(self.average_node))[0:n]
+        return sorted(self.nodes.values(), key=lambda x: x.dist_from_other(self.average_node), reverse=reverse)[0:n]
 
-    def n_farthest_nodes_from_avg_node(self, n):
-        """Returns a list of n nodes that are farthest from the average node."""
-        if n > len(self.nodes):
-            print('N is more than the number of nodes, so all nodes will be returned in descending order of distance.')
-        return sorted(self.nodes.values(), key=lambda x: x.dist_from_other(self.average_node), reverse=True)[0:n]
+    def nodes_by_coord_value(self, reverse=False, coord=None):
+        """Returns a list of the nodes sorted by either x or y co-ordinates.
+        The 'coord' arg must be a string equal to either 'x' or 'y'.
+        Default is lowest values first, set reverse=True for longest first."""
+        if coord == 'x':
+            return sorted(self.nodes.values(), key=lambda x: x.x, reverse=reverse)
+        elif coord == 'y':
+            return sorted(self.nodes.values(), key=lambda x: x.y, reverse=reverse)
 
-    def nodes_by_x_value(self, reverse=False):
-        """Returns a list of the nodes sorted by the x co-ordinate."""
-        if not reverse:
-            return sorted(self.nodes.values(), key=lambda x: x.x)
-        elif reverse:
-            return sorted(self.nodes.values(), key=lambda x: x.x, reverse=True)
-
-    def nodes_by_y_value(self, reverse=False):
-        """Returns a list of the nodes sorted by the y co-ordinate."""
-        if not reverse:
-            return sorted(self.nodes.values(), key=lambda x: x.y)
-        elif reverse:
-            return sorted(self.nodes.values(), key=lambda x: x.y, reverse=True)
-
-    def n_shortest_edges_of_instance(self, n):
+    def n_edges_by_length(self, n, reverse=False):  # TODO: test this for correct output
         """Returns the n shortest edges. Be careful with this method, as there may be more than one edge sharing the
         same length, however this is unlikely in random instances."""
-        sorted_edges = sorted(self.edges.values(), key=lambda x: x.length_)
-        if n == 1:
-            return sorted_edges[0]
-        elif 1 < n < len(self.nodes):
-            return sorted_edges[0:n]
-        elif n == len(self.nodes):
-            return sorted_edges[0:len(self.nodes)]
-        elif n > len(self.nodes):
-            print('N is more than the number of edges, so all edges will be returned in order of ascending length.')
-            return sorted_edges[0:len(self.nodes)]
-
-    def n_longest_edges_of_instance(self, n):
-        """Returns the n longest edges. Be careful with this method, as there may be more than one edge sharing the
-        same length, however this is unlikely in random instances."""
-        sorted_edges = sorted(self.edges.values(), key=lambda x: x.length_, reverse=True)
+        sorted_edges = sorted(self.edges.values(), key=lambda x: x.length_, reverse=reverse)
         if n == 1:
             return sorted_edges[0]
         elif 1 < n < len(self.nodes):
@@ -578,7 +540,7 @@ class Instance:
                 d_list.append(n.dist_from_other(m))
             self.dmatrix.append(d_list)
 
-    def solve(self, convex_hull=True, brute_force=True):  # TODO: add check for existing solution, add return for this
+    def solve(self, convex_hull=True, brute_force=True):
         """Solves the instance, if possible, in the quickest way available to this library.
         Solving can also be done manually through calling 'Solver.brute_force(instance)', however this is a more
         direct way to do it."""
@@ -590,11 +552,12 @@ class Instance:
 
             if self.results is None:
                 self.results = {'brute_force': bf_result['path']}
-                self.results['optimal_solution'] = self.results['brute_force']
 
             else:
                 self.results['brute_force'] = bf_result['path']
-                self.results['optimal_solution'] = self.results['brute_force']
+
+            self.results['optimal_solution'] = self.results['brute_force']
+            self.solution_path = bf_result['path']
 
             return 'Brute force completed.'
 
@@ -615,70 +578,70 @@ class Instance:
         """Completes a diamond prune on the instance's edges."""
         reducers.diamond_prune(self)
 
-    def view(self, result=None, nodes=False, edges=False, show_avg=False, plot_se=False, plot_le=False, title='default',
-             node_color='red', edge_color='blue', node_zorder=2, edge_zorder=1, edge_width=1, labels=True,
-             good_edges=False, e_from_single_node=False, node=None):
-        """Use pyplot to view the instance. It will show the path if the instance has been solved.
-        Set show_avg=True to plot the average node. Set no_path=True to plot the nodes only, if the instance has been
-        solved but you don't want to see the path.
-        Make sure to include 'plt.figure()' in any looping algorithms. This ensures that diferent loops are plotted on
-        different graphs.
-        """
-        if title == 'default':
-            plt.title = f"Problem: {self.seed}"
-        else:
-            plt.title = title
-
-        plt.xlim(xmin=0, xmax=100)
-        plt.ylim(ymin=0, ymax=100)
-
-        if result is not None:  # plot the passed result path
-            self.results[result].view(node_color=node_color, node_zorder=node_zorder, edge_zorder=edge_zorder)
-
-        if nodes is True:  # plot the nodes
-            plt.scatter(self.x_values, self.y_values, color=node_color, zorder=node_zorder)
-
-        # if labels is True:  # annotate each node with a label of id and co-ords, not working yet
-        #     for i in self.nodes.values():
-        #         plt.annotate()
-
-        if edges is True:  # plot all of the instance's edges
-            for edge in self.edges.values():
-                edge.plot(color=edge_color, zorder=edge_zorder, edge_width=edge_width)
-
-        if good_edges is True:  # plot only the instance's good edges after pruning
-            for edge in self.edges.values():
-                if edge.fitness == 'good':
-                    edge.plot(zorder=edge_zorder, edge_width=edge_width)
-
-        if e_from_single_node is True:  # plot the edges from a single node only
-            for edge in self.edges.values():
-                if edge.node_one == self.nodes[node]:
-                    edge.plot(zorder=edge_zorder, edge_width=edge_width)
-
-        if show_avg:  # plot the average node
-            plt.scatter(self.average_node.x, self.average_node.y)
-
-        if plot_se is True:  # plot the shortest edge
-            plt.plot([i.x for i in self.n_shortest_edges_of_instance(1).indiv_nodes_as_list],
-                     [i.y for i in self.n_shortest_edges_of_instance(1).indiv_nodes_as_list])
-
-        if plot_le is True:  # plot the longest edge
-            plt.plot([i.x for i in self.n_longest_edges_of_instance(1).indiv_nodes_as_list],
-                     [i.y for i in self.n_longest_edges_of_instance(1).indiv_nodes_as_list])
-
-        plt.show()
-
-    def populate_node_densities(self):
-        """Sets the node density values."""
-        inst_edge_sum = self.instance_edge_sum
-        for node in self.nodes.values():
-            if node.density is None:
-                connected_edge_length_sum = 0
-                for edge in self.edges.values():
-                    if edge.node_one == node or edge.node_two == node:
-                        connected_edge_length_sum += edge.length_
-                node.density = connected_edge_length_sum/inst_edge_sum
+    # def view(self, result=None, nodes=False, edges=False, show_avg=False, plot_se=False, plot_le=False, title='default',
+    #          node_color='red', edge_color='blue', node_zorder=2, edge_zorder=1, edge_width=1, labels=True,
+    #          good_edges=False, e_from_single_node=False, node=None):
+    #     """Use pyplot to view the instance. It will show the path if the instance has been solved.
+    #     Set show_avg=True to plot the average node. Set no_path=True to plot the nodes only, if the instance has been
+    #     solved but you don't want to see the path.
+    #     Make sure to include 'plt.figure()' in any looping algorithms. This ensures that diferent loops are plotted on
+    #     different graphs.
+    #     """
+    #     if title == 'default':
+    #         plt.title = f"Problem: {self.seed}"
+    #     else:
+    #         plt.title = title
+    #
+    #     plt.xlim(xmin=0, xmax=100)
+    #     plt.ylim(ymin=0, ymax=100)
+    #
+    #     if result:  # plot the passed result path
+    #         self.results[result].view(node_color=node_color, node_zorder=node_zorder, edge_zorder=edge_zorder)
+    #
+    #     if nodes is True:  # plot the nodes
+    #         plt.scatter(self.x_values, self.y_values, color=node_color, zorder=node_zorder)
+    #
+    #     # if labels is True:  # annotate each node with a label of id and co-ords, not working yet
+    #     #     for i in self.nodes.values():
+    #     #         plt.annotate()
+    #
+    #     if edges is True:  # plot all of the instance's edges
+    #         for edge in self.edges.values():
+    #             edge.plot(color=edge_color, zorder=edge_zorder, edge_width=edge_width)
+    #
+    #     if good_edges is True:  # plot only the instance's good edges after pruning
+    #         for edge in self.edges.values():
+    #             if edge.fitness == 'good':
+    #                 edge.plot(zorder=edge_zorder, edge_width=edge_width)
+    #
+    #     if e_from_single_node is True:  # plot the edges from a single node only
+    #         for edge in self.edges.values():
+    #             if edge.node_one == self.nodes[node]:
+    #                 edge.plot(zorder=edge_zorder, edge_width=edge_width)
+    #
+    #     if show_avg:  # plot the average node
+    #         plt.scatter(self.average_node.x, self.average_node.y)
+    #
+    #     if plot_se is True:  # plot the shortest edge
+    #         plt.plot([i.x for i in self.n_shortest_edges_of_instance(1).indiv_nodes_as_list],
+    #                  [i.y for i in self.n_shortest_edges_of_instance(1).indiv_nodes_as_list])
+    #
+    #     if plot_le is True:  # plot the longest edge
+    #         plt.plot([i.x for i in self.n_longest_edges_of_instance(1).indiv_nodes_as_list],
+    #                  [i.y for i in self.n_longest_edges_of_instance(1).indiv_nodes_as_list])
+    #
+    #     plt.show()
+    #
+    # def populate_node_densities(self):
+    #     """Sets the node density values."""
+    #     inst_edge_sum = self.instance_edge_sum
+    #     for node in self.nodes.values():
+    #         if node.density is None:
+    #             connected_edge_length_sum = 0
+    #             for edge in self.edges.values():
+    #                 if edge.node_one == node or edge.node_two == node:
+    #                     connected_edge_length_sum += edge.length_
+    #             node.density = connected_edge_length_sum/inst_edge_sum
 
 
 class Generator:
@@ -706,7 +669,7 @@ class Generator:
                 print('The node_count given is less than three and is invalid. This value must be three or greater.')
                 raise ValueError
             s = Instance.seeder()
-            inst = Instance()
+            inst = Instance(relative_edges=relative_edges)
             inst.seed = s
             inst.populate_nodes(node_count)
             inst.populate_edges(relative_edges=relative_edges)
@@ -721,7 +684,7 @@ class Generator:
                 print('The node_count given is less than three and is invalid. This value must be three or greater.')
                 raise ValueError
             s = Instance.seeder(manual_seed=True, num=seed)
-            inst = Instance()
+            inst = Instance(relative_edges=relative_edges)
             inst.seed = s
             inst.populate_nodes(node_count)
             inst.populate_edges(relative_edges=relative_edges)
@@ -735,7 +698,7 @@ class Generator:
             Setting calc_dmatrix=True will calculate the distance matrix and set the dmatrix attribute accordingly.
             Setting calc_node_dens=True will populate the node densities. This calculation determines the position of a
             node, relative to the other nodes."""
-            inst = Instance()
+            inst = Instance(relative_edges=relative_edges)
             if inst.nodes is None:
                 inst.nodes = {}
             with open(file) as data:
@@ -906,3 +869,65 @@ class Solver:
         path.append(path[0])
 
         return {'path': Path(tuple(path))}
+
+# path view(self, show_avg=False, no_path=False, plot_se=False, plot_le=False, title='', node_color='red',
+#           edge_color='red', edge_zorder=2, node_zorder=3,  edge_width=1)
+
+# instance view(self, result=None, nodes=False, edges=False, show_avg=False, plot_se=False, plot_le=False,
+#               title='default', node_color='red', edge_color='blue', node_zorder=2, edge_zorder=1, edge_width=1,
+#               labels=True, good_edges_only=False, e_from_single_node=False, node=None)
+
+# Both a Path and an Instance have 'nodes' and 'edges' properties, so both can be accessed with the same call.
+# I should be able to use that fact to make that code simpler.
+
+# plot all nodes > red
+# plot edges
+# if good_edges_only:
+#     only plot good edges
+# else:
+#     plot all edges
+# plot single edge if given (overrides plotted edge above with different colour)
+
+# TODO: implement labels for nodes
+
+
+def view(data, nodes=False, edges=False, good_edges_only=False, show_avg=False, plot_se=False, plot_le=False,
+         node_color='red', edge_color='blue', node_zorder=2, edge_zorder=1, edge_width=1, e_from_single_node=False,
+         node=None):
+    """An Instance or a Path needs to be given as the 'data' arg.
+    Plots nodes, edges and paths; can also plot the average node, any single edge"""
+    plt.xlim(xmin=0, xmax=100)
+    plt.ylim(ymin=0, ymax=100)
+
+    if nodes:  # plot the nodes
+        plt.scatter(data.x_values, data.y_values, color=node_color, zorder=node_zorder, )
+
+    if edges:  # plot all of the instance's edges
+        if good_edges_only:
+            for edge in data.edges.values():
+                if edge.fitness == 'good':
+                    edge.plot(zorder=edge_zorder, edge_width=edge_width)
+        else:
+            for edge in data.edges.values():
+                edge.plot(color=edge_color, zorder=edge_zorder, edge_width=edge_width)
+
+    if e_from_single_node:  # plot the edges from a single node only
+        try:
+            for edge in data.edges.values():
+                if edge.node_one == data.nodes[node]:
+                    edge.plot(zorder=edge_zorder, edge_width=edge_width, edge_color='green')
+        except Exception as e:
+            print(e)
+
+    if show_avg:  # plot the average node
+        plt.scatter(data.average_node.x, data.average_node.y, marker=data.average_node.nodes)
+
+    if plot_se is True:  # plot the shortest edge
+        plt.plot([i.x for i in data.n_shortest_edges_of_instance(1).indiv_nodes_as_list],
+                 [i.y for i in data.n_shortest_edges_of_instance(1).indiv_nodes_as_list])
+
+    if plot_le is True:  # plot the longest edge
+        plt.plot([i.x for i in data.n_longest_edges_of_instance(1).indiv_nodes_as_list],
+                 [i.y for i in data.n_longest_edges_of_instance(1).indiv_nodes_as_list])
+
+    plt.show()
