@@ -437,6 +437,17 @@ class Instance:
             nodes.append(node)
         return nodes
 
+    # @property
+    # def skew_value(self):
+    #     """Returns the skew value of the problem.
+    #     Empty at the moment, I need to remember how to calculate the skew value.
+    #     """
+
+    @property
+    def density_dict(self):
+        """Returns a dictionary of the node densities."""
+        return {key: node.density for key, node in self.nodes.items()}
+
     def n_edge_lengths(self, n=None, reverse=False, all_lengths=False):  # TODO: test this for correct output
         """Returns n edge lengths as a list.
         Default is shortest lengths first. Set reverse=True for longest first.
@@ -451,18 +462,6 @@ class Instance:
         else:
             return sorted([n.length_ for n in self.edges.values()], reverse=reverse) \
                        [0:len(self.edges.values()):step][0:n]
-
-
-    # @property
-    # def skew_value(self):
-    #     """Returns the skew value of the problem.
-    #     Empty at the moment, I need to remember how to calculate the skew value.
-    #     """
-
-    @property
-    def density_dict(self):
-        """Returns a dictionary of the node densities."""
-        return {key: node.density for key, node in self.nodes.items()}
 
     def edges_from_node(self, node, good_only=False):
         """Pass in a digit specifying the node to return the connected edges for.
