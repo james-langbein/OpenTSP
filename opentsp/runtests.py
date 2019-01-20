@@ -72,14 +72,11 @@ class InstanceTestCase(unittest.TestCase):
         self.assertEqual(self.prob.y_values[0], 98)
         self.assertEqual(self.prob.average_node, Node(43.5, 57.25))
         self.assertEqual(self.prob.instance_edge_sum, 322.12506347937057)
-        self.assertEqual(self.prob.results['optimal_solution'].length, 192.3989287237428)
+        self.assertEqual(self.prob.results['optimal_solution'].length, 192.39892872374278)
         self.assertEqual(self.prob.instance_average_edge_length, 53.6875105798951)
-        self.assertEqual(self.prob.n_closest_nodes_to_avg_node(2), [Node(43, 47), Node(49, 80)])
-        self.assertEqual(self.prob.n_farthest_nodes_from_avg_node(2), [Node(31, 4), Node(51, 98)])
-        self.assertEqual(self.prob.nodes_by_x_value()[0], Node(31, 4))
-        self.assertEqual(self.prob.nodes_by_y_value()[0], Node(31, 4))
-        self.assertEqual(self.prob.n_shortest_edges_of_instance(1).length_, min(self.prob.edge_lengths_as_list))
-        self.assertEqual(self.prob.n_longest_edges_of_instance(1).length_, max(self.prob.edge_lengths_as_list))
+        self.assertEqual(self.prob.n_nodes_by_dist_to_avg(2), [Node(43, 47), Node(49, 80)])
+        self.assertEqual(self.prob.nodes_by_coord_value(coord='x')[0], Node(31, 4))
+        self.assertEqual(self.prob.n_edges_by_length(1).length_, self.prob.n_edge_lengths(1)[0])
 
 
 if __name__ == '__main__':
