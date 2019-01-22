@@ -30,7 +30,7 @@ def angle(vertex, start, dest):
     AB = AhAB - AhAO
     res = calc_radians(AB)
     # in between 0 - math.pi = do nothing, more than math.pi = +(-2 * math.pi), less than zero = do nothing
-    # below is calc() as a one-liner:
+    # below is calc_radians() as a one-liner:
     # AB = math.degrees(AB + (-2 * math.pi if AB > math.pi else (2 * math.pi if AB < 0 - math.pi else 0)))
 
     return math.degrees(res)
