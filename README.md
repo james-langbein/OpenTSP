@@ -109,7 +109,7 @@ Instances can be generated from a variety of sources, currently these are:
 * **Random**  
    A random eight digit seed is generated for the instance, and nodes with random values are generated from this seed.
 * **Seed**  
-   Pass in an integer to use as a seed. This is primarily helpful when you want to reproduce a series of random instances. When passing in your own seed make sure to set `source=seed`, otherwise the seed you pass will be ignored.  
+   Pass in an integer to use as a seed. This is primarily helpful when you want to reproduce a series of random instances. When passing in your own seed make sure to set `source='seed'`, otherwise the seed you pass will be ignored.  
    E.g. `inst = generate.Generator.new_instance(5, source='seed', seed=123)`
 * **CSV**  
    Currently this takes a CSV with two columns of values for the *x* and *y* coordinates. The top row must have the titles 'x' and 'y'.
