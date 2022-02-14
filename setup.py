@@ -14,7 +14,7 @@ setup(
     description="Generate TSP instances and test hypotheses on them",
     long_description=README,
     long_description_content_type="text/markdown",
-    # url="Github link will be up soon",
+    url="https://github.com/james-langbein/OpenTSP",
     author="James Langbein",
     author_email="james.langbein@protonmail.com",
     license="MIT",
