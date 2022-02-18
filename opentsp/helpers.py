@@ -2,14 +2,14 @@ import math
 
 
 def combinations_calculator(n, r=1):
-        """Calculates number of combinations."""
-        return int((math.factorial(n)) / (math.factorial(r) * math.factorial(n - r)))
+    """Calculates number of combinations."""
+    return int((math.factorial(n)) / (math.factorial(r) * math.factorial(n - r)))
 
 
 def permutations_calculator(n, r=1):
-        """Returns the full range of permutations for the instance's edges. This is used by the solve method to exhaust
-        the permutations generator without going over the maximum number of permutations."""
-        return int((math.factorial(n)) / (math.factorial(n - r)))
+    """Returns the full range of permutations for the instance's edges. This is used by the solve method to exhaust
+    the permutations generator without going over the maximum number of permutations."""
+    return int((math.factorial(n)) / (math.factorial(n - r)))
 
 
 def angle(vertex, start, dest):
